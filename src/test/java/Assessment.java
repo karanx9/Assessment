@@ -199,7 +199,7 @@ public class Assessment {
         System.out.println("Paragraph Content: " + extracted_paragraph);
 
         // Save the image
-        String imageUrl = "https://imagenes.elpais.com/resizer/v2/IQGRZBIDOBCXPKMPQETU65HBKY.jpg?auth=bf50ecea10d8ce6606a4da720e5a1888a943b4c62287d106cea5eec2541f177a&width=414";
+        String imageUrl = "https://imagenes.elpais.com/resizer/v2/JH4DNMXA5NPYLM4GDSTMBSRUZI.jpg?auth=9b0a0a94f954eca828c0765572484051929bc717d7c51aa5a69004de240566ba&width=414";
         String imagePath = "C:\\Users\\DELL\\Pictures\\Saved Pictures\\article_fourth_image.jpg";
 
         try {
@@ -228,7 +228,7 @@ public class Assessment {
     System.out.println("Paragraph Content: " + extracted_paragraph);
 
     // Save the image
-    String imageUrl = "https://imagenes.elpais.com/resizer/v2/IQGRZBIDOBCXPKMPQETU65HBKY.jpg?auth=bf50ecea10d8ce6606a4da720e5a1888a943b4c62287d106cea5eec2541f177a&width=414";
+    String imageUrl = "https://imagenes.elpais.com/resizer/v2/VROFFG55DZCWFISXQUZXT3Y2O4.jpg?auth=1427ba5dd11cb6039a0176b2473fd14198ce98cc173b4bcbf18fbe8f3212cca3&width=414";
     String imagePath = "C:\\Users\\DELL\\Pictures\\Saved Pictures\\article_five_image.jpg";
 
     try {
