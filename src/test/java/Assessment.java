@@ -3,18 +3,17 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 
@@ -25,10 +24,13 @@ public class Assessment {
     private static final By opinion = By.xpath("(//a[@href=\"https://elpais.com/opinion/\"])[1]");
     private static final By first_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/podemos-y-el-estigma-de-los-catalanes-racistas.html\"]");
     private static final By extarct_Title = By.cssSelector("h1[class=\"a_t\"]");
-   // private static final By extarct_content = By.cssSelector("h2[class=\"a_st\"]");
     private static final By second_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/campo-de-distorsion-de-la-realidad.html\"]");
     private static final By paragraph_content = By.tagName("p");
     private static final By third_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/el-espacio-esta-muy-vacio-y-encima-faltan-autobuses.html\"]");
+    private static final By fourth_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/lecciones-de-verano.html\"]");
+    private static final By fifth_aricle = By.xpath("(//a[@href=\"https://elpais.com/opinion/2025-07-24/por-la-gloria-de-moscoso.html\"])[2]");
+
+
 
 
     private WebElement waitAndGetElement(By locator, WebDriverWait wait) {
@@ -45,7 +47,44 @@ public class Assessment {
 //        options.addArguments("--lang=es");
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, (20));
+
     }
+
+    //Translate API method for Header Translation.
+    private String translateText(String text) {
+        String apiUrl = "https://api.lecto.ai/v1/translate/text";
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("X-API-Key", "NTVF13Z-HJ444A8-GSZWQ77-1K1Z8QE");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setDoOutput(true);
+
+            String jsonInput = "{\"texts\":[\"" + text.replace("\"", "\\\"") + "\"],\"to\":[\"en\"],\"from\":\"es\"}";
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInput.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line.trim());
+            }
+            br.close();
+            connection.disconnect();
+
+            // Extract only the translated text from the nested "translated" array
+            return response.toString().replaceAll(".*\"translated\":\\[\"([^\"]+)\"\\].*", "$1");
+        } catch (Exception e) {
+            System.err.println("Translation error: " + e.getMessage());
+            return "Translation failed";
+        }
+    }
+
 
     @Test(priority = 0)
     public void Aricle_First() {
@@ -59,6 +98,9 @@ public class Assessment {
         System.out.println("Article 1  : -");
 
         System.out.println("Header1" + "  " +   extracted_header);
+
+        String translated_header = translateText(extracted_header);
+        System.out.println("Translated Header1: " + translated_header);
 
 
         String extracted_contenet = waitAndGetElement(paragraph_content,wait).getText();
@@ -91,6 +133,9 @@ public class Assessment {
         System.out.println("Article 2:");
         System.out.println("Header2: " + extracted_header);
 
+        String translated_header = translateText(extracted_header);
+        System.out.println("Translated Header2: " + translated_header);
+
         String extracted_content = wait.until(visibilityOfElementLocated(paragraph_content)).getText().trim();
         System.out.println("Paragraph content " + extracted_content);
 
@@ -118,6 +163,9 @@ public class Assessment {
         System.out.println("Article 3:");
         System.out.println("Header3: " + extracted_header);
 
+        String translated_header = translateText(extracted_header);
+        System.out.println("Translated Header3: " + translated_header);
+
         String extracted_paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(paragraph_content)).getText().trim();
         System.out.println("Paragraph Content: " + extracted_paragraph);
 
@@ -133,5 +181,62 @@ public class Assessment {
         }
     }
 
+    @Test(priority = 3)
+    public void Aricle_fourth(){
+
+        driver.navigate().back();
+
+        waitAndGetElement(fourth_article, wait).click();
+        String extracted_header = wait.until(ExpectedConditions.visibilityOfElementLocated(extarct_Title)).getText().trim();
+
+        System.out.println("Article 4:");
+        System.out.println("Header 4: " + extracted_header);
+
+        String translated_header = translateText(extracted_header);
+        System.out.println("Translated Header 4: " + translated_header);
+
+        String extracted_paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(paragraph_content)).getText().trim();
+        System.out.println("Paragraph Content: " + extracted_paragraph);
+
+        // Save the image
+        String imageUrl = "https://imagenes.elpais.com/resizer/v2/IQGRZBIDOBCXPKMPQETU65HBKY.jpg?auth=bf50ecea10d8ce6606a4da720e5a1888a943b4c62287d106cea5eec2541f177a&width=414";
+        String imagePath = "C:\\Users\\DELL\\Pictures\\Saved Pictures\\article_fourth_image.jpg";
+
+        try {
+            Files.copy(new URL(imageUrl).openStream(), Paths.get(imagePath));
+            System.out.println("Image saved to: " + imagePath);
+        } catch (Exception e) {
+            System.err.println("Error downloading image: " + e.getMessage());
+        }
+    }
+
+    @Test(priority = 4)
+    public void Aricle_five(){
+
+    driver.navigate().back();
+
+    waitAndGetElement(fifth_aricle, wait).click();
+    String extracted_header = wait.until(ExpectedConditions.visibilityOfElementLocated(extarct_Title)).getText().trim();
+
+    System.out.println("Article 5:");
+    System.out.println("Header 5: " + extracted_header);
+
+    String translated_header = translateText(extracted_header);
+    System.out.println("Translated Header 5: " + translated_header);
+
+    String extracted_paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(paragraph_content)).getText().trim();
+    System.out.println("Paragraph Content: " + extracted_paragraph);
+
+    // Save the image
+    String imageUrl = "https://imagenes.elpais.com/resizer/v2/IQGRZBIDOBCXPKMPQETU65HBKY.jpg?auth=bf50ecea10d8ce6606a4da720e5a1888a943b4c62287d106cea5eec2541f177a&width=414";
+    String imagePath = "C:\\Users\\DELL\\Pictures\\Saved Pictures\\article_five_image.jpg";
+
+    try {
+        Files.copy(new URL(imageUrl).openStream(), Paths.get(imagePath));
+        System.out.println("Image saved to: " + imagePath);
+    } catch (Exception e) {
+        System.err.println("Error downloading image: " + e.getMessage());
+    }
+}
 
 }
