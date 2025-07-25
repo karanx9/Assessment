@@ -4,6 +4,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterTest;
@@ -29,13 +31,13 @@ public class Assessment {
     public WebDriverWait wait;
 
     private static final By opinion = By.xpath("(//a[@href=\"https://elpais.com/opinion/\"])[1]");
-    private static final By first_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/podemos-y-el-estigma-de-los-catalanes-racistas.html\"]");
+    private static final By first_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-25/reino-unido-y-europa-no-basta-con-ir-tirando.html\"]");
     private static final By extarct_Title = By.cssSelector("h1[class=\"a_t\"]");
-    private static final By second_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/campo-de-distorsion-de-la-realidad.html\"]");
+    private static final By second_article = By.cssSelector("a[href=\"https://elpais.com/espana/2025-07-25/me-acojo-al-secreto-profesional.html\"]");
     private static final By paragraph_content = By.tagName("p");
-    private static final By third_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/el-espacio-esta-muy-vacio-y-encima-faltan-autobuses.html\"]");
-    private static final By fourth_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-24/lecciones-de-verano.html\"]");
-    private static final By fifth_aricle = By.xpath("(//a[@href=\"https://elpais.com/opinion/2025-07-24/por-la-gloria-de-moscoso.html\"])[2]");
+    private static final By third_article = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-25/candidatos-a-ser-grandes-hombres.html\"]");
+    private static final By fourth_article = By.xpath("(//a[@href=\"https://elpais.com/opinion/2025-07-25/la-corrupcion-y-sus-tipos.html\"])[2]");
+    private static final By fifth_aricle = By.cssSelector("a[href=\"https://elpais.com/opinion/2025-07-25/menonegocio.html\"]");
     private static final By Accep_cookie = By.cssSelector("button[id=\"didomi-notice-agree-button\"]");
 
     // Static list to accumulate translated headers across all tests
@@ -47,8 +49,23 @@ public class Assessment {
 
     @BeforeTest
     public void setup() {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\dell\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
-        driver = new ChromeDriver();
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        // BrowserStack automatically picks up capabilities from browserstack.yml
+        // Alternatively, set capabilities manually if needed
+        capabilities.setCapability("browserstack.user", "tstkaranp_7JNjil");
+        capabilities.setCapability("browserstack.key", "wJ18vndg64sxQzukyh74");
+        capabilities.setCapability("build", "bstack-demo");
+        capabilities.setCapability("project", "BrowserStack-Sample");
+
+        try {
+            driver = new RemoteWebDriver(new URL("https://hub-cloud.browserstack.com/wd/hub"), capabilities);
+            wait = new WebDriverWait(driver, 20);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //System.setProperty("webdriver.chrome.driver", "C:\\Users\\dell\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+       // driver = new ChromeDriver();
         wait = new WebDriverWait(driver, 20);
     }
 
@@ -68,6 +85,9 @@ public class Assessment {
                 byte[] input = jsonInput.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
+
+            // Add delay (e.g., 2 seconds) to respect rate limit
+            Thread.sleep(4000);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
             StringBuilder response = new StringBuilder();
